@@ -1,3 +1,5 @@
+### All code in this repo is not prod-ready, only for learning purposes
+
 Run rabbitmq within docker container:
 
 ```dockerfile

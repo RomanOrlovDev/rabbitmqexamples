@@ -8,21 +8,12 @@ import (
 	consumeronebyone "rabbitwithreconnections/consumingonebyone"
 	"rabbitwithreconnections/rabbit"
 	"rabbitwithreconnections/simplesendreceive"
-	"rabbitwithreconnections/tmp"
 )
 
-func main5() {
-	go func() {
-		tmp.Receive()
-	}()
-
-	var forever chan struct{}
-	tmp.Send()
-	fmt.Println("waiting forever...")
-	forever <- struct{}{}
-}
-
-func main4() {
+// simpleSendReceive example of simple sending messages from main routine (u can create as many producers as u wish)
+// and consuming from a routine
+// todo add description
+func simpleSendReceive() {
 	go func() {
 		simplesendreceive.Receive()
 	}()
@@ -34,21 +25,34 @@ func main4() {
 	forever <- struct{}{}
 }
 
-// running consumingonebyone
-// here is important thing QoS - this is how many items could be loaded into channel
-// - autoAck is in false because we need to mark finishing of work manually
-func main2() {
+// consumeonebyone running package consumingonebyone
+// Producer produces messages which may have either number one or four. It produces consequently 1 than 4.
+// Consumer creates 2 goroutines. When a routine consumes a message
+// it will wait as long seconds as consumed number.
+// Another interesting thing - when we create a channel for consumers,
+// we apply QoS property which controls prefetch property. This is how many items could be loaded by one consumer.
+// Property "autoAck" is in false because we need to mark finishing of work manually
+func consumeonebyone() {
 	go func() {
 		consumeronebyone.Receive()
 	}()
 
 	var forever chan struct{}
-	consumeronebyone.Send()
+	consumeronebyone.ProduceOneOrFourSeconds()
 	fmt.Println("waiting forever...")
 	forever <- struct{}{}
 }
 
 func main() {
+	// rabbitClientWithReconnections()
+	consumeonebyone()
+}
+
+// this is a demonstration of custom client which is put to rabbit package.
+// This is able to reconnect when rabbit server is down for some reasons.
+// Also, it holds one tcp connection per initialization, so u can initialize rabbit client separately and per this client
+// crate as many consumers/producers as u wish. Only one TCP connection will be in use
+func rabbitClientWithReconnections() {
 	go func() {
 		rabbit.Produce()
 	}()
@@ -80,7 +84,5 @@ func main() {
 		log.Fatalln("unable to start consumer", err)
 	}
 	//
-	fmt.Println("before")
 	select {}
-	fmt.Println("after")
 }

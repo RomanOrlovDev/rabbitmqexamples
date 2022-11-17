@@ -16,34 +16,37 @@ type sender struct {
 	ch *amqp.Channel
 }
 
-func Send() {
+func ProduceOneOrFourSeconds() {
 	s := createChannel()
 	defer s.cc.Close()
 	defer s.ch.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
+	// produce 1 thеn 4, 1 thеn 4
 	for i := 0; i < 7; i++ {
-		message := 4
+		message := 1
 		if i%2 == 0 {
-			message = 1
+			message = 4
 		}
-		// message := 1 + rand.Intn(3)
-		err := s.ch.PublishWithContext(ctx,
-			"",
-			queueName,
-			false,
-			false,
-			amqp.Publishing{
-				DeliveryMode: amqp.Persistent,
-				ContentType:  "text/plain",
-				Body:         []byte(strconv.Itoa(message)),
-			})
-
-		failOnError(err, "Failed to publish a message")
-		log.Printf(" [x] Sent %d", message)
+		s.sendMessage(ctx, message)
 	}
+}
+
+func (s *sender) sendMessage(ctx context.Context, message int) {
+	err := s.ch.PublishWithContext(ctx,
+		"",
+		queueName,
+		false,
+		false,
+		amqp.Publishing{
+			DeliveryMode: amqp.Persistent,
+			ContentType:  "text/plain",
+			Body:         []byte(strconv.Itoa(message)),
+		})
+
+	failOnError(err, "Failed to publish a message")
+	log.Printf(" [x] Sent %d", message)
 }
 
 func createChannel() *sender {
