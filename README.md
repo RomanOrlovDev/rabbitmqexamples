@@ -2,13 +2,13 @@
 
 Run rabbitmq within docker container:
 
-```dockerfile
+```
 docker run -d --name some-rabbit -p 5672:5672 rabbitmq:3.10.7-management-alpine
 ```
 
 if you want to point any specific user and pass, then you can pass env variables which control this user/pass flow
 
-```dockerfile
+```
 docker run -d --name some-rabbit -p 5672:5672 -e RABBITMQ_DEFAULT_USER=someuser -e RABBITMQ_DEFAULT_PASS=somepass rabbitmq:3.10.7-management-alpine
 ```
 
@@ -16,7 +16,11 @@ docker run -d --name some-rabbit -p 5672:5672 -e RABBITMQ_DEFAULT_USER=someuser 
 * what is routing key
 * what is exhange type
 * try to stop container with rabbit and play with durability option
-* what is exchange and what type it could accept?
+
+* what is exchange and what type it could accept?*
+
+Exchange types:
+fanout - send messages to all queues
 
 *what is consumer parameter in channel.Consume:*
 
